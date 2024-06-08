@@ -207,7 +207,7 @@ func (f *FedirectHandler) DoLookup(w http.ResponseWriter, req *http.Request) {
 
 func (f *FedirectHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	switch {
-	case req.Method == http.MethodGet && req.URL.Path == "/":
+	case req.Method == http.MethodGet && req.URL.Path == "/", req.Method == http.MethodHead && req.URL.Path == "/":
 		f.DoLookup(w, req)
 	default:
 		http.NotFound(w, req)
