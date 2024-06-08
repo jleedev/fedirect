@@ -22,6 +22,8 @@ type Address struct {
 
 var kAddressRe = regexp.MustCompile(`^(.*?)@(.*)$`)
 
+const kUserAgent string = "fedirect/0"
+
 func ParseAddress(id string) (*Address, error) {
 	m := kAddressRe.FindStringSubmatch(id)
 	if m == nil {
@@ -101,7 +103,7 @@ func (f *FedirectHandler) LookupAccount(account Address) (*JRDLookupResult, erro
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("User-Agent", "fedirect")
+	req.Header.Set("User-Agent", kUserAgent)
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, err
@@ -145,7 +147,7 @@ func (f *FedirectHandler) LookupHost(host string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	req.Header.Set("User-Agent", "fedirect")
+	req.Header.Set("User-Agent", kUserAgent)
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return "", err
