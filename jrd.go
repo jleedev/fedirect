@@ -26,5 +26,10 @@ func parseJrd(data []byte) (*JRDLookupResult, error) {
 			return &JRDLookupResult{jrd.Subject, link.Href}, nil
 		}
 	}
+	for _, link := range jrd.Link {
+		if link.Rel == "self" {
+			return &JRDLookupResult{jrd.Subject, link.Href}, nil
+		}
+	}
 	return nil, errors.New("not found")
 }
