@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "embed"
 	"errors"
 	"fmt"
 	"io"
@@ -23,6 +24,9 @@ type Address struct {
 var kAddressRe = regexp.MustCompile(`^(.*?)@(.*)$`)
 
 const kUserAgent string = "fedirect/0"
+
+//go:embed index.html
+var kIndexHtml string
 
 func ParseAddress(id string) (*Address, error) {
 	m := kAddressRe.FindStringSubmatch(id)
@@ -180,7 +184,7 @@ func (f *FedirectHandler) LookupHost(host string) (string, error) {
 func (f *FedirectHandler) DoLookup(w http.ResponseWriter, req *http.Request) {
 	id := req.FormValue("id")
 	if id == "" {
-		http.Error(w, "?id=", http.StatusBadRequest)
+		io.WriteString(w, kIndexHtml)
 		return
 	}
 	addr, err := ParseAddress(id)

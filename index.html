@@ -1,0 +1,29 @@
+<!doctype html><title>fedirect</title><meta charset=utf-8>
+<meta name=viewport content="width=device-width">
+<meta name=color-scheme content="light dark">
+
+<style>
+  :root{color-scheme:light dark;font:1em/1.2 monospace}
+  *{font:inherit;margin:0}
+  body{margin:8px}
+  p{margin:1em 0}
+  h1{display:inline-block;position:relative;overflow:hidden;padding-bottom:1.2em}
+  h1::after{content:"================================================================================";display:block;position:absolute;white-space:pre}
+  nav{display:flex;flex-flow:column;align-items:flex-start}
+  nav a::before{content:"["}
+  nav a::after{content:"]: "attr(href);word-break:break-all}
+  nav a{text-decoration:none;color:unset;margin-left:4ch;text-indent:-4ch}
+</style>
+
+<h1>
+  Fediverse WebFinger resolver
+</h1>
+
+<p>
+Usage: /?id=&lt;user&gt;@&lt;host&gt;
+
+<nav>
+  <a href="https://toolsadmin.wikimedia.org/tools/id/fedirect">Toolsadmin</a>
+  <a href="https://gitlab.wikimedia.org/toolforge-repos/fedirect">GitLab</a>
+</nav>
+
