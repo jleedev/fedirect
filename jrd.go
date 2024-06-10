@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 )
 
 type JRDLookupResult struct {
@@ -31,5 +30,5 @@ func parseJrd(data []byte) (*JRDLookupResult, error) {
 			return &JRDLookupResult{jrd.Subject, link.Href}, nil
 		}
 	}
-	return nil, errors.New("not found")
+	return nil, ErrorNotFound
 }

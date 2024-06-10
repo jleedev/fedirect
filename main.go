@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"mime"
 	"net"
 	"net/http"
 	"net/url"
@@ -127,6 +128,15 @@ func (f *FedirectHandler) LookupAccount(account Address) (*JRDLookupResult, erro
 	return jrd, nil
 }
 
+func DefaultWebFinger(host string) *url.URL {
+	return &url.URL{
+		Scheme:   "https",
+		Host:     host,
+		Path:     "/.well-known/webfinger",
+		RawQuery: "resource={uri}",
+	}
+}
+
 // Determine the WebFinger URL for the hostname, or error if it was not possible to determine.
 //
 // 1. Fetch the https://{host}/.well-known/host-meta.
@@ -156,13 +166,9 @@ func (f *FedirectHandler) LookupHost(host string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if resp.StatusCode == http.StatusNotFound {
-		webfingerUrl := (&url.URL{
-			Scheme:   "https",
-			Host:     host,
-			Path:     "/.well-known/webfinger",
-			RawQuery: "resource={uri}",
-		}).String()
+	mediatype, _, _ := mime.ParseMediaType(resp.Header.Get("Content-Type"))
+	if resp.StatusCode == http.StatusNotFound || resp.Header.Get("Content-Length") == "0" || mediatype != "application/xrd+xml" {
+		webfingerUrl := DefaultWebFinger(host).String()
 		f.setHost(host, webfingerUrl)
 		return webfingerUrl, nil
 	}
@@ -174,11 +180,16 @@ func (f *FedirectHandler) LookupHost(host string) (string, error) {
 		return "", err
 	}
 	template, err := parseXrd(body)
-	if err != nil {
+	if err == nil {
+		f.setHost(host, template)
+		return template, nil
+	} else if err == ErrorNotFound {
+		webfingerUrl := DefaultWebFinger(host).String()
+		f.setHost(host, webfingerUrl)
+		return webfingerUrl, nil
+	} else {
 		return "", err
 	}
-	f.setHost(host, template)
-	return template, nil
 }
 
 func (f *FedirectHandler) DoLookup(w http.ResponseWriter, req *http.Request) {

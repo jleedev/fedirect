@@ -5,6 +5,8 @@ import (
 	"errors"
 )
 
+var ErrorNotFound = errors.New("not found")
+
 func parseXrd(data []byte) (string, error) {
 	var xrd struct {
 		XMLName xml.Name `xml:"http://docs.oasis-open.org/ns/xri/xrd-1.0 XRD"`
@@ -21,5 +23,5 @@ func parseXrd(data []byte) (string, error) {
 			return link.Template, nil
 		}
 	}
-	return "", errors.New("not found")
+	return "", ErrorNotFound
 }
