@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"slices"
 )
 
 type JRDLookupResult struct {
@@ -20,6 +21,7 @@ func parseJrd(data []byte) (*JRDLookupResult, error) {
 	if err := json.Unmarshal([]byte(data), &jrd); err != nil {
 		return nil, err
 	}
+	slices.Reverse(jrd.Link)
 	for _, link := range jrd.Link {
 		if link.Rel == "http://webfinger.net/rel/profile-page" {
 			return &JRDLookupResult{jrd.Subject, link.Href}, nil
