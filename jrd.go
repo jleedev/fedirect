@@ -3,33 +3,41 @@ package main
 import (
 	"encoding/json"
 	"slices"
+	"strings"
 )
 
-type JRDLookupResult struct {
-	Subject string
-	Href    string
-}
-
-func parseJrd(data []byte) (*JRDLookupResult, error) {
+func parseJrd(data []byte, wanted_type string) (*LookupResponse, error) {
 	var jrd struct {
-		Subject string `json:"subject"`
-		Link    []struct {
-			Rel  string `json:"rel"`
-			Href string `json:"href"`
-		} `json:"links"`
+		Subject string
+		Links   []struct {
+			Rel        string
+			Href       string
+			Type       string
+			Properties struct {
+				Type string `json:"https://www.w3.org/ns/activitystreams#type"`
+			}
+		}
 	}
 	if err := json.Unmarshal([]byte(data), &jrd); err != nil {
 		return nil, err
 	}
-	slices.Reverse(jrd.Link)
-	for _, link := range jrd.Link {
+	if wanted_type != "" {
+		for _, link := range jrd.Links {
+			if strings.EqualFold(wanted_type, link.Properties.Type) {
+				return &LookupResponse{jrd.Subject, link.Href}, nil
+			}
+		}
+		return nil, ErrorNotFound
+	}
+	slices.Reverse(jrd.Links)
+	for _, link := range jrd.Links {
 		if link.Rel == "http://webfinger.net/rel/profile-page" {
-			return &JRDLookupResult{jrd.Subject, link.Href}, nil
+			return &LookupResponse{jrd.Subject, link.Href}, nil
 		}
 	}
-	for _, link := range jrd.Link {
+	for _, link := range jrd.Links {
 		if link.Rel == "self" {
-			return &JRDLookupResult{jrd.Subject, link.Href}, nil
+			return &LookupResponse{jrd.Subject, link.Href}, nil
 		}
 	}
 	return nil, ErrorNotFound
