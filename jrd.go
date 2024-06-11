@@ -31,7 +31,7 @@ func parseJrd(data []byte, wanted_type string) (*LookupResponse, error) {
 	}
 	slices.Reverse(jrd.Links)
 	for _, link := range jrd.Links {
-		if link.Rel == "http://webfinger.net/rel/profile-page" {
+		if link.Rel == "http://webfinger.net/rel/profile-page" || link.Rel == "https://webfinger.net/rel/profile-page" {
 			return &LookupResponse{jrd.Subject, link.Href}, nil
 		}
 	}

@@ -40,6 +40,12 @@ func TestParseJrd(t *testing.T) {
 			Type:    "Group",
 			Subject: "acct:android@lemmy.world",
 			Href:    "https://lemmy.world/c/android",
+			// incidentally, kbin has the same issue as lemmy, conflating the user@host namespace for both persons and groups, but doesn't bother to disambiguish anything unless you are actually willing to guess what /u/ and /m/ mean.
+		},
+		{
+			Input:   `{"subject":"acct:matt@write.as","aliases":["https://write.as/matt/","https://write.as/api/collections/matt"],"links":[{"href":"https://write.as/matt/","type":"text/html","rel":"https://webfinger.net/rel/profile-page"},{"href":"https://write.as/api/collections/matt","type":"application/activity+json","rel":"self"}]}`,
+			Subject: "acct:matt@write.as",
+			Href:    "https://write.as/matt/",
 		},
 	} {
 		w := tc
