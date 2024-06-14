@@ -10,6 +10,7 @@ import (
 	"net/url"
 	"os"
 	"regexp"
+	"runtime/debug"
 	"strconv"
 
 	"golang.org/x/net/idna"
@@ -26,6 +27,24 @@ const kUserAgent string = "fedirect/0"
 
 //go:embed index.html
 var kIndexHtml string
+
+func footer() string {
+	revision := ""
+	dirty := ""
+	if info, ok := debug.ReadBuildInfo(); ok {
+		for _, setting := range info.Settings {
+			switch setting.Key {
+			case "vcs.revision":
+				revision = setting.Value[:7]
+			case "vcs.modified":
+				if setting.Value == "true" {
+					dirty = "-dirty"
+				}
+			}
+		}
+	}
+	return revision + dirty
+}
 
 func ParseAddress(id string) (*Address, error) {
 	m := kAddressRe.FindStringSubmatch(id)

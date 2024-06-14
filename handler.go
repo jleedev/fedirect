@@ -130,6 +130,9 @@ func (f *FedirectHandler) DoLookup(w http.ResponseWriter, req *http.Request) {
 	id := req.FormValue("id")
 	if id == "" {
 		io.WriteString(w, kIndexHtml)
+		if footer := footer(); footer != "" {
+			fmt.Fprintf(w, "<p>\n<address>%v</address>\n", footer)
+		}
 		return
 	}
 	addr, err := ParseAddress(id)
