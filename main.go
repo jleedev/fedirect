@@ -11,6 +11,8 @@ import (
 	"os"
 	"regexp"
 	"strconv"
+
+	"golang.org/x/net/idna"
 )
 
 type Address struct {
@@ -38,7 +40,12 @@ func ParseAddress(id string) (*Address, error) {
 // If host meta exists,
 
 func (a Address) String() string {
-	return a.User + "@" + a.Host
+	label, err := idna.ToASCII(a.Host)
+	if err == nil {
+		return a.User + "@" + label
+	} else {
+		return a.User + "@" + a.Host
+	}
 }
 
 func DefaultWebFinger(host string) *url.URL {
