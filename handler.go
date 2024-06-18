@@ -12,8 +12,10 @@ import (
 type LookupRequest struct {
 	// the user@host of the request
 	Id Address
-	// empty string, or the type which was requested, converted to lowercase
+	// empty string, or the type which was requested
 	Type string
+	// whether the requested Type is merely a suggestion
+	Fallback bool
 }
 
 type LookupResponse struct {
@@ -65,7 +67,7 @@ func (f *FedirectHandler) LookupAccount(lr LookupRequest) (*LookupResponse, erro
 	if err != nil {
 		return nil, err
 	}
-	jrd, err := parseJrd(body, lr.Type)
+	jrd, err := parseJrd(body, lr)
 	if err != nil {
 		return nil, err
 	}
@@ -135,14 +137,26 @@ func (f *FedirectHandler) DoLookup(w http.ResponseWriter, req *http.Request) {
 		}
 		return
 	}
+	var lookup LookupRequest
+	switch id[0] {
+	case '@':
+		lookup.Type = "Person"
+		lookup.Fallback = true
+		id = id[1:]
+	case '!':
+		lookup.Type = "Group"
+		id = id[1:]
+	default:
+		lookup.Type = req.FormValue("type")
+	}
 	addr, err := ParseAddress(id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	wanted_type := req.FormValue("type")
+	lookup.Id = *addr
 
-	profile, err := f.LookupAccount(LookupRequest{*addr, wanted_type})
+	profile, err := f.LookupAccount(lookup)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func parseJrd(data []byte, wanted_type string) (*LookupResponse, error) {
+func parseJrd(data []byte, lr LookupRequest) (*LookupResponse, error) {
 	var jrd struct {
 		Subject string
 		Links   []struct {
@@ -21,13 +21,15 @@ func parseJrd(data []byte, wanted_type string) (*LookupResponse, error) {
 	if err := json.Unmarshal([]byte(data), &jrd); err != nil {
 		return nil, err
 	}
-	if wanted_type != "" {
+	if lr.Type != "" {
 		for _, link := range jrd.Links {
-			if strings.EqualFold(wanted_type, link.Properties.Type) {
+			if strings.EqualFold(lr.Type, link.Properties.Type) {
 				return &LookupResponse{jrd.Subject, link.Href}, nil
 			}
 		}
-		return nil, ErrorNotFound
+		if !lr.Fallback {
+			return nil, ErrorNotFound
+		}
 	}
 	slices.Reverse(jrd.Links)
 	for _, link := range jrd.Links {
@@ -35,6 +37,7 @@ func parseJrd(data []byte, wanted_type string) (*LookupResponse, error) {
 			return &LookupResponse{jrd.Subject, link.Href}, nil
 		}
 	}
+	// Warning, no profile page found. It's possible this redirect may not be useful in a web browser, but only for an ActivityPub agent.
 	for _, link := range jrd.Links {
 		if link.Rel == "self" {
 			return &LookupResponse{jrd.Subject, link.Href}, nil
