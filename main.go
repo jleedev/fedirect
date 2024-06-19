@@ -42,6 +42,9 @@ func footer() string {
 				}
 			}
 		}
+		if revision == "" {
+			return info.Main.Version
+		}
 	}
 	return revision + dirty
 }
