@@ -35,7 +35,7 @@ func footer() string {
 		for _, setting := range info.Settings {
 			switch setting.Key {
 			case "vcs.revision":
-				revision = setting.Value[:7]
+				revision = setting.Value[:12]
 			case "vcs.modified":
 				if setting.Value == "true" {
 					dirty = "-dirty"
