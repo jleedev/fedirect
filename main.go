@@ -88,6 +88,6 @@ func main() {
 	}
 	log.Print("Now listening on http://", ln.Addr())
 	handler := NewFedirectHandler()
-	http.Handle("/", handler)
+	http.Handle("GET /{$}", handler)
 	log.Fatal(http.Serve(ln, nil))
 }

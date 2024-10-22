@@ -128,7 +128,7 @@ func (f *FedirectHandler) LookupHost(host string) (string, error) {
 	}
 }
 
-func (f *FedirectHandler) DoLookup(w http.ResponseWriter, req *http.Request) {
+func (f *FedirectHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	id := req.FormValue("id")
 	if id == "" {
 		io.WriteString(w, kIndexHtml)
@@ -170,13 +170,4 @@ func (f *FedirectHandler) DoLookup(w http.ResponseWriter, req *http.Request) {
 	resolvedAcct := strings.TrimPrefix(profile.Subject, "acct:")
 	fmt.Fprintf(w, "Found %v at %v\n", resolvedAcct, profile.Href)
 	fmt.Fprintf(w, "Redirecting …\n")
-}
-
-func (f *FedirectHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	switch {
-	case req.Method == http.MethodGet && req.URL.Path == "/", req.Method == http.MethodHead && req.URL.Path == "/":
-		f.DoLookup(w, req)
-	default:
-		http.NotFound(w, req)
-	}
 }

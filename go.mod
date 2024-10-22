@@ -1,6 +1,6 @@
 module gitlab.wikimedia.org/toolforge-repos/fedirect
 
-go 1.21
+go 1.23
 
 require golang.org/x/net v0.26.0
 
